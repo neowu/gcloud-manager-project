@@ -1,0 +1,31 @@
+apply from: file("${rootDir}/gradle/project.gradle")
+
+subprojects {
+    group = 'core.infrastructure'
+    version = '0.0.1'
+}
+
+def jacksonVersion = '2.12.0'
+def junitVersion = '5.7.0'
+def mockitoVersion = '3.7.0'
+def assertjVersion = '3.18.1'
+def mysqlVersion = '8.0.23'
+
+project(':gcloud-manager') {
+    apply plugin: 'application'
+    mainClassName = 'Main'
+    applicationName = 'gm'
+
+    dependencies {
+        implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
+        implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
+        implementation 'org.yaml:snakeyaml:1.28'
+
+        runtimeOnly "mysql:mysql-connector-java:${mysqlVersion}"
+
+        testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+        testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+        testImplementation "org.assertj:assertj-core:${assertjVersion}"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    }
+}
