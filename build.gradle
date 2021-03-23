@@ -3,6 +3,16 @@ apply from: file("${rootDir}/gradle/project.gradle")
 subprojects {
     group = 'core.infrastructure'
     version = '0.0.1'
+
+    sourceSets {
+        dev {
+            java {
+                srcDir 'src/dev/java'
+            }
+            compileClasspath += sourceSets.main.runtimeClasspath
+            runtimeClasspath += sourceSets.main.runtimeClasspath
+        }
+    }
 }
 
 def jacksonVersion = '2.12.0'
