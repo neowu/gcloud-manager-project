@@ -29,7 +29,7 @@ project(':gcloud-manager') {
     dependencies {
         implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
         implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
-        implementation 'org.yaml:snakeyaml:1.28'
+        implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}"
 
         runtimeOnly "mysql:mysql-connector-java:${mysqlVersion}"
 
