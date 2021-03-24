@@ -19,9 +19,9 @@ public class Shell {
             if (input.input != null) {
                 try (OutputStream output = process.getOutputStream()) {
                     output.write(input.input.getBytes(StandardCharsets.UTF_8));
+                    output.flush();
                 }
             }
-            process.getOutputStream().flush();
             int status = process.waitFor();
             try (InputStream inputStream = process.getInputStream(); InputStream error = process.getErrorStream()) {
                 return new Result(status, new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), new String(error.readAllBytes(), StandardCharsets.UTF_8));
