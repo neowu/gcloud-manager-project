@@ -17,15 +17,15 @@ public class Shell {
         try {
             Process process = new ProcessBuilder().command(input.commands).start();
             if (input.input != null) {
-                try (OutputStream output = process.getOutputStream()) {
-                    output.write(input.input.getBytes(StandardCharsets.UTF_8));
-                    output.flush();
-                }
+                OutputStream output = process.getOutputStream();
+                output.write(input.input.getBytes(StandardCharsets.UTF_8));
+                output.flush();
             }
             int status = process.waitFor();
-            try (InputStream inputStream = process.getInputStream(); InputStream error = process.getErrorStream()) {
-                return new Result(status, new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), new String(error.readAllBytes(), StandardCharsets.UTF_8));
-            }
+            InputStream inputStream = process.getInputStream();
+            InputStream error = process.getErrorStream();
+            return new Result(status, new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), new String(error.readAllBytes(), StandardCharsets.UTF_8));
+
         } catch (IOException | InterruptedException e) {
             throw new Error("failed to execute command, error=" + e.getMessage(), e);
         }
