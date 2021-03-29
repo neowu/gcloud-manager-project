@@ -17,17 +17,27 @@ public class Shell {
         try {
             Process process = new ProcessBuilder().command(input.commands).start();
             if (input.input != null) {
-                OutputStream output = process.getOutputStream();
-                output.write(input.input.getBytes(StandardCharsets.UTF_8));
-                output.flush();
+                writeInput(input, process);
             }
             int status = process.waitFor();
-            InputStream inputStream = process.getInputStream();
-            InputStream error = process.getErrorStream();
-            return new Result(status, new String(inputStream.readAllBytes(), StandardCharsets.UTF_8), new String(error.readAllBytes(), StandardCharsets.UTF_8));
-
+            return readOutput(process, status);
         } catch (IOException | InterruptedException e) {
             throw new Error("failed to execute command, error=" + e.getMessage(), e);
+        }
+    }
+
+    private static Result readOutput(Process process, int status) throws IOException {
+        try (InputStream inputStream = process.getInputStream();
+             InputStream error = process.getErrorStream()) {
+            return new Result(status, new String(inputStream.readAllBytes(), StandardCharsets.UTF_8),
+                    new String(error.readAllBytes(), StandardCharsets.UTF_8));
+        }
+    }
+
+    private static void writeInput(Input input, Process process) throws IOException {
+        try (OutputStream output = process.getOutputStream()) {
+            output.write(input.input.getBytes(StandardCharsets.UTF_8));
+            output.flush();
         }
     }
 

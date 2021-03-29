@@ -1,5 +1,6 @@
-package core.infra.db;
+package core.infra.command;
 
+import core.infra.db.MySQLClient;
 import core.infra.gcloud.DescribeSQLResponse;
 import core.infra.gcloud.SQLInstanceClient;
 import core.infra.gcloud.SecretClient;

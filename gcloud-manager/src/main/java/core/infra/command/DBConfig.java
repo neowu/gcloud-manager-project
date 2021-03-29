@@ -1,4 +1,4 @@
-package core.infra.db;
+package core.infra.command;
 
 import java.util.List;
 
