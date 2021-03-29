@@ -11,10 +11,11 @@ import java.util.Map;
  */
 public class Console {
     private final String command;
-    private final Map<String, String> params = new HashMap<>();
+    private final Map<String, String> params;
 
     public Console(String[] args) {
         command = args[0];
+        params = new HashMap<>(args.length - 1);
         for (int i = 1; i < args.length; i++) {
             // arg is in --name=value
             String arg = args[i];
@@ -24,10 +25,17 @@ public class Console {
     }
 
     public void execute() throws Exception {
+        if ("db".equals(command)) {
+            syncDB();
+        } else {
+            throw new Error("unknown command, command=" + command);
+        }
+
+        /* change implementation to switch case to support multi commands
         switch (command) {
             case "db" -> syncDB();
             default -> throw new Error("unknown command, command=" + command);
-        }
+        }*/
     }
 
     private void syncDB() throws Exception {

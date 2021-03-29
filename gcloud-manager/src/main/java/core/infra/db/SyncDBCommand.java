@@ -5,7 +5,6 @@ import core.infra.gcloud.SQLInstanceClient;
 import core.infra.gcloud.SecretClient;
 import core.infra.kube.KubeClient;
 import core.infra.util.JSON;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -18,14 +17,13 @@ import java.util.List;
  * @author neo
  */
 public class SyncDBCommand {
-    private final Logger logger = LoggerFactory.getLogger(SyncDBCommand.class);
     private final SQLInstanceClient sqlInstance = new SQLInstanceClient();
     private final SecretClient secretClient = new SecretClient();
     private final KubeClient kubeClient = new KubeClient();
     private final DBConfig config;
 
     public SyncDBCommand(Path configPath) throws IOException {
-        logger.info("sync db, config={}", configPath.toAbsolutePath());
+        LoggerFactory.getLogger(SyncDBCommand.class).info("sync db, config={}", configPath.toAbsolutePath());
         config = JSON.fromJSON(DBConfig.class, Files.readString(configPath));
     }
 
@@ -39,8 +37,10 @@ public class SyncDBCommand {
                 client.createDB(db);
             }
             for (DBConfig.User user : config.users) {
-                String password = createDBUser(client, user);
-                if (user.kube != null) createKubeSecret(user, password);
+                if (user.kube != null) {
+                    String password = createDBUser(client, user);
+                    createKubeSecret(user, password);
+                }
             }
             for (DBConfig.Endpoint endpoint : config.endpoints) {
                 kubeClient.createEndpoint(endpoint.ns, endpoint.name, instance.privateIP());
