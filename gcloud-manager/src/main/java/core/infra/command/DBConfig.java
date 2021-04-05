@@ -14,6 +14,14 @@ public class DBConfig {
     public List<User> users;
     public List<Endpoint> endpoints;
 
+    public void validate() {
+        for (User user : users) {
+            if (user.name.length() > 32) {
+                throw new Error("db user name must be no longer than 32, user=" + user.name);
+            }
+        }
+    }
+
     public static class Kube {
         public String name;
         public String zone;

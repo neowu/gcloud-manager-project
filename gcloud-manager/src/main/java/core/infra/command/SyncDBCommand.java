@@ -26,6 +26,7 @@ public class SyncDBCommand {
     public SyncDBCommand(Path configPath) throws IOException {
         LoggerFactory.getLogger(SyncDBCommand.class).info("sync db, config={}", configPath.toAbsolutePath());
         config = JSON.fromJSON(DBConfig.class, Files.readString(configPath));
+        config.validate();
     }
 
     public void sync() throws Exception {
