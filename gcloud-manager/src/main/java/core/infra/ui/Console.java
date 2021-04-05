@@ -5,9 +5,13 @@ import core.infra.command.SyncDBCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author neo
@@ -42,8 +46,26 @@ public class Console {
     }
 
     private void syncDB() throws Exception {
-        Path config = Path.of(params.get("conf"));
-        // TODO: 1. if params not have conf, use "db", 2. if it's dir, apply all json under it, 3. validate
-        new SyncDBCommand(config).sync();
+        List<Path> configPaths = dbConfigPaths();
+        for (Path config : configPaths) {
+            new SyncDBCommand(config).sync();
+        }
+    }
+
+    private List<Path> dbConfigPaths() {
+        String conf = params.get("conf");
+        File dbDir;
+        if (conf == null) { // assume current dir is env dir
+            dbDir = Path.of("db").toFile();
+        } else {
+            File file = Path.of(conf).toFile();
+            if (file.isDirectory()) {
+                dbDir = file;
+            } else {
+                return List.of(file.toPath());
+            }
+        }
+        if (!dbDir.exists()) throw new Error("db dir doesn't exist, dir=" + dbDir.toPath().toAbsolutePath());
+        return Arrays.stream(dbDir.listFiles((dir, name) -> name.endsWith(".json"))).map(File::toPath).collect(Collectors.toList());
     }
 }

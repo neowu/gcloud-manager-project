@@ -34,7 +34,7 @@ public class MySQLClient implements Closeable {
 
     public void createDB(String db) throws SQLException {
         logger.info("create db, db={}", db);
-        String sql = String.format("CREATE DATABASE IF NOT EXISTS %s CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci", db);
+        String sql = String.format("CREATE DATABASE IF NOT EXISTS `%s` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci", db);
         try (var statement = connection.prepareStatement(sql)) {
             statement.execute();
         }
@@ -45,7 +45,7 @@ public class MySQLClient implements Closeable {
         try (var statement = connection.createStatement()) {
             statement.addBatch(String.format("CREATE USER IF NOT EXISTS '%s'@'%%'", user));
             statement.addBatch(String.format("ALTER USER '%s'@'%%' IDENTIFIED BY '%s'", user, password));
-            statement.addBatch(String.format("GRANT %s ON %s.* TO '%s'@'%%'", String.join(", ", privileges), db, user));
+            statement.addBatch(String.format("GRANT %s ON `%s`.* TO '%s'@'%%'", String.join(", ", privileges), db, user));
             statement.executeBatch();
         }
     }
