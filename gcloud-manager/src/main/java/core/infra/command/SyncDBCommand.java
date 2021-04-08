@@ -39,7 +39,8 @@ public class SyncDBCommand {
                 client.createDB(db);
             }
             for (DBConfig.User user : config.users) {
-                String password = createDBUser(client, user);
+                String password = secretClient.getOrCreateSecret(config.project, user.secret);
+                createDBUser(client, user, password);
                 if (user.kube != null) {
                     kubeClient.createUserPasswordSecret(user.kube.ns, user.kube.secret, user.name, password);
                 }
@@ -50,14 +51,12 @@ public class SyncDBCommand {
         }
     }
 
-    private String createDBUser(MySQLClient client, DBConfig.User user) throws SQLException {
-        String password = secretClient.getOrCreateSecret(config.project, user.secret);
+    private void createDBUser(MySQLClient client, DBConfig.User user, String password) throws SQLException {
         switch (user.type) {
             case "MIGRATION" -> client.createUser(user.name, password, "*", List.of("CREATE", "DROP", "INDEX", "ALTER", "EXECUTE", "SELECT", "INSERT", "UPDATE", "DELETE"));
             case "APP" -> client.createUser(user.name, password, user.db, List.of("SELECT", "INSERT", "UPDATE", "DELETE"));
             case "READ_ONLY" -> client.createUser(user.name, password, "*", List.of("SELECT"));
             default -> throw new Error("unknown user type, type=" + user.type);
         }
-        return password;
     }
 }
