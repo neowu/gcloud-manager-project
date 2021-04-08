@@ -45,9 +45,14 @@ public class MySQLClient implements Closeable {
         try (var statement = connection.createStatement()) {
             statement.addBatch(String.format("CREATE USER IF NOT EXISTS '%s'@'%%'", user));
             statement.addBatch(String.format("ALTER USER '%s'@'%%' IDENTIFIED BY '%s'", user, password));
-            statement.addBatch(String.format("GRANT %s ON `%s`.* TO '%s'@'%%'", String.join(", ", privileges), db, user));
+            statement.addBatch(String.format("GRANT %s ON %s.* TO '%s'@'%%'", String.join(", ", privileges), escape(db), user));
             statement.executeBatch();
         }
+    }
+
+    private String escape(String db) {
+        if ("*".equals(db)) return "*";
+        return "`" + db + "`";
     }
 
     @Override

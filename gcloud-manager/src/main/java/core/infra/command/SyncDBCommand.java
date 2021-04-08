@@ -39,9 +39,9 @@ public class SyncDBCommand {
                 client.createDB(db);
             }
             for (DBConfig.User user : config.users) {
+                String password = createDBUser(client, user);
                 if (user.kube != null) {
-                    String password = createDBUser(client, user);
-                    createKubeSecret(user, password);
+                    kubeClient.createUserPasswordSecret(user.kube.ns, user.kube.secret, user.name, password);
                 }
             }
             for (DBConfig.Endpoint endpoint : config.endpoints) {
@@ -59,9 +59,5 @@ public class SyncDBCommand {
             default -> throw new Error("unknown user type, type=" + user.type);
         }
         return password;
-    }
-
-    private void createKubeSecret(DBConfig.User user, String password) {
-        kubeClient.createUserPasswordSecret(user.kube.ns, user.kube.secret, user.name, password);
     }
 }
