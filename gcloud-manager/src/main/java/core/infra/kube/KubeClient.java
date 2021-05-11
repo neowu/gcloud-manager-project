@@ -30,7 +30,7 @@ public class KubeClient {
         apply(resources);
     }
 
-    public void createNs(String ns) {
+    public void createNamespace(String ns) {
         logger.info("create namespace, ns={}", ns);
         Shell.Result result = Shell.execute(new Shell.Input(new String[]{"kubectl", "create", "ns", ns}, ""));
         if (!result.success()) {

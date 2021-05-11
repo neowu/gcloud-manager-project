@@ -47,14 +47,14 @@ public class SyncDBCommand {
                 createDBUser(client, user, password);
                 if (user.kube != null) {
                     if (namespaces.add(user.kube.ns)) {
-                        kubeClient.createNs(user.kube.ns);
+                        kubeClient.createNamespace(user.kube.ns);
                     }
                     kubeClient.createUserPasswordSecret(user.kube.ns, user.kube.secret, user.name, password);
                 }
             }
             for (DBConfig.Endpoint endpoint : config.endpoints) {
                 if (namespaces.add(endpoint.ns)) {
-                    kubeClient.createNs(endpoint.ns);
+                    kubeClient.createNamespace(endpoint.ns);
                 }
                 kubeClient.createEndpoint(endpoint.ns, endpoint.name, instance.privateIP());
             }
