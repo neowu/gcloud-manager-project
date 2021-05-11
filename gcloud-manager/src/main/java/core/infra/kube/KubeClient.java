@@ -30,6 +30,18 @@ public class KubeClient {
         apply(resources);
     }
 
+    public void createNs(String ns) {
+        logger.info("create namespace, ns={}", ns);
+        Shell.Result result = Shell.execute(new Shell.Input(new String[]{"kubectl", "create", "ns", ns}, ""));
+        if (!result.success()) {
+            if (result.error.contains("already exists")) {
+                logger.info("namespace exists, ns={}", ns);
+            } else {
+                throw new Error("failed to create namespace, error=" + result.error);
+            }
+        }
+    }
+
     private void apply(String resources) {
         Shell.Result result = Shell.execute(new Shell.Input(new String[]{"kubectl", "apply", "-f", "-"}, resources));
         if (!result.success()) throw new Error("failed to apply kube resources, error=" + result.error);

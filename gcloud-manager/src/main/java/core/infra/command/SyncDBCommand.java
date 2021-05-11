@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author neo
@@ -34,6 +36,8 @@ public class SyncDBCommand {
         String rootPassword = secretClient.getOrCreateSecret(config.project, config.rootSecret);
         sqlInstance.changeRootPassword(config.project, config.instance, rootPassword);
         kubeClient.switchContext(config.project, config.kube.name, config.kube.zone);
+
+        Set<String> namespaces = new HashSet<>();
         try (MySQLClient client = new MySQLClient(instance.publicIP(), "root", rootPassword)) {
             for (String db : config.dbs) {
                 client.createDB(db);
@@ -42,10 +46,16 @@ public class SyncDBCommand {
                 String password = secretClient.getOrCreateSecret(config.project, user.secret);
                 createDBUser(client, user, password);
                 if (user.kube != null) {
+                    if (namespaces.add(user.kube.ns)) {
+                        kubeClient.createNs(user.kube.ns);
+                    }
                     kubeClient.createUserPasswordSecret(user.kube.ns, user.kube.secret, user.name, password);
                 }
             }
             for (DBConfig.Endpoint endpoint : config.endpoints) {
+                if (namespaces.add(endpoint.ns)) {
+                    kubeClient.createNs(endpoint.ns);
+                }
                 kubeClient.createEndpoint(endpoint.ns, endpoint.name, instance.privateIP());
             }
         }
