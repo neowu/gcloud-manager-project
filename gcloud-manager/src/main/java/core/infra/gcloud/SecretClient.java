@@ -25,7 +25,7 @@ public class SecretClient {
     }
 
     private void createSecret(String project, String secret) {
-        Shell.Result result = Shell.execute("gcloud", "--project=" + project, "secrets", "create", secret, "--format=json");
+        Shell.Result result = Shell.execute("gcloud", "--project=" + project, "secrets", "create", secret, "--format=json", "--replication-policy=automatic");
         if (result.success() || result.error.contains("already exists")) return;
         throw new Error("failed to create secret, secret=" + secret + ", error=" + result.error);
     }
