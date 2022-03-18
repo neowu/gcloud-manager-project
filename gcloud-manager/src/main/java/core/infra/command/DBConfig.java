@@ -7,6 +7,7 @@ import java.util.List;
  */
 public class DBConfig {
     public String project;
+    public String env;
     public String instance;
     public Kube kube;
     public String rootSecret;
@@ -15,6 +16,8 @@ public class DBConfig {
     public List<Endpoint> endpoints;
 
     public void validate() {
+        if (env == null) throw new Error("env must not be null");
+
         for (User user : users) {
             if (user.name.length() > 32) {
                 throw new Error("db user name must be no longer than 32, user=" + user.name);
