@@ -33,7 +33,7 @@ public class SyncDBCommand {
 
     public void sync() throws Exception {
         DescribeSQLResponse instance = sqlInstance.describe(config.project, config.instance);
-        String rootPassword = secretClient.getOrCreateSecret(config.project, config.rootSecret, config.env);
+        String rootPassword = secretClient.getOrCreateSecret(config.project, secretName(config.rootSecret), config.env);
         sqlInstance.changeRootPassword(config.project, config.instance, rootPassword);
         kubeClient.switchContext(config.project, config.kube.name, config.kube.zone);
 
@@ -43,7 +43,7 @@ public class SyncDBCommand {
                 client.createDB(db);
             }
             for (DBConfig.User user : config.users) {
-                String password = secretClient.getOrCreateSecret(config.project, user.secret, config.env);
+                String password = secretClient.getOrCreateSecret(config.project, secretName(user.secret), config.env);
                 createDBUser(client, user, password);
                 if (user.kube != null) {
                     if (namespaces.add(user.kube.ns)) {
@@ -68,5 +68,9 @@ public class SyncDBCommand {
             case "READ_ONLY" -> client.createUser(user.name, password, "*", List.of("SELECT"));
             default -> throw new Error("unknown user type, type=" + user.type);
         }
+    }
+
+    private String secretName(String name) {
+        return config.env + "-" + name;
     }
 }

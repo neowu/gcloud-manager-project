@@ -42,4 +42,12 @@ public class SecretClient {
         createSecret(project, secret, env);
         addSecretVersion(project, secret, value);
     }
+
+    public void updateEnvLabel(String project, String secret, String env) {
+        logger.info("update secret env label, secret={}", secret);
+        Shell.Result result = Shell.execute("gcloud", "--project=" + project, "secrets", "update", secret, "--update-labels=env=" + env, "--format=json");
+        if (!result.success() && result.error.contains("NOT_FOUND")) {
+            throw new Error("secret not found, secret=" + secret);
+        }
+    }
 }
