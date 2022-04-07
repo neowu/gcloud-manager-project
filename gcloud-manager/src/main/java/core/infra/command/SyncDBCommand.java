@@ -50,14 +50,7 @@ public class SyncDBCommand {
                 if ("IAM".equals(user.type)) {
                     client.grantUserPrivileges(user.name, user.db, List.of("SELECT", "INSERT", "UPDATE", "DELETE"));
                 } else {
-                    String password = secretClient.getOrCreateSecret(config.project, user.secret, config.env);
-                    createDBUser(client, user, password);
-                    if (user.kube != null) {
-                        if (namespaces.add(user.kube.ns)) {
-                            kubeClient.createNamespace(user.kube.ns);
-                        }
-                        kubeClient.createUserPasswordSecret(user.kube.ns, user.kube.secret, user.name, password);
-                    }
+                    createOtherUsers(client, user, namespaces);
                 }
             }
             for (DBConfig.Endpoint endpoint : config.endpoints) {
@@ -66,6 +59,17 @@ public class SyncDBCommand {
                 }
                 kubeClient.createEndpoint(endpoint.ns, endpoint.name, instance.privateIP());
             }
+        }
+    }
+
+    private void createOtherUsers(MySQLClient client, DBConfig.User user, Set<String> namespaces) throws SQLException {
+        String password = secretClient.getOrCreateSecret(config.project, user.secret, config.env);
+        createDBUser(client, user, password);
+        if (user.kube != null) {
+            if (namespaces.add(user.kube.ns)) {
+                kubeClient.createNamespace(user.kube.ns);
+            }
+            kubeClient.createUserPasswordSecret(user.kube.ns, user.kube.secret, user.name, password);
         }
     }
 
