@@ -35,7 +35,7 @@ public class Console {
     }
 
     public void execute() throws Exception {
-        logger.info("gcloud manager 0.02");
+        logger.info("gcloud manager 0.03");
         switch (command) {
             case "db" -> syncDB();
             case "kube" -> applyKube();

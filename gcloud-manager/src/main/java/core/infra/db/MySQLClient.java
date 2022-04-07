@@ -51,7 +51,7 @@ public class MySQLClient implements Closeable {
     }
 
     public void grantUserPrivileges(String user, String db, List<String> privileges) throws SQLException {
-        logger.info("create user, user={}", user);
+        logger.info("grant user privileges, user={}", user);
         String sql = String.format("GRANT %s ON %s.* TO '%s'@'%%'", String.join(", ", privileges), escape(db), user);
         try (var statement = connection.prepareStatement(sql)) {
             statement.execute();
