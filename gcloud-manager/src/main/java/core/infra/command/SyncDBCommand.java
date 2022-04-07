@@ -68,6 +68,7 @@ public class SyncDBCommand {
         switch (user.type) {
             case "MIGRATION" -> client.createUser(user.name, password, "*", List.of("CREATE", "DROP", "INDEX", "ALTER", "EXECUTE", "SELECT", "INSERT", "UPDATE", "DELETE"));
             case "APP" -> client.createUser(user.name, password, user.db, List.of("SELECT", "INSERT", "UPDATE", "DELETE"));
+            case "IAM" -> client.grantUserPrivileges(user.name, user.db, List.of("SELECT", "INSERT", "UPDATE", "DELETE"));
             case "READ_ONLY" -> client.createUser(user.name, password, "*", List.of("SELECT"));
             default -> throw new Error("unknown user type, type=" + user.type);
         }

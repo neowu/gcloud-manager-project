@@ -2,14 +2,14 @@ apply from: file("${rootDir}/gradle/project.gradle")
 
 subprojects {
     group = 'core.infrastructure'
-    version = '0.0.1'
+    version = '0.0.3'
 }
 
-def jacksonVersion = '2.12.0'
-def junitVersion = '5.7.0'
-def mockitoVersion = '3.7.0'
-def assertjVersion = '3.18.1'
-def mysqlVersion = '8.0.23'
+def jacksonVersion = '2.13.1'
+def junitVersion = '5.8.2'
+def mockitoVersion = '4.3.1'
+def assertjVersion = '3.22.0'
+def mysqlVersion = '8.0.28'
 
 project(':gcloud-manager') {
     apply plugin: 'application'
