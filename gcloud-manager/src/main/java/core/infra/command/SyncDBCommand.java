@@ -46,13 +46,18 @@ public class SyncDBCommand {
                 client.createDB(db);
             }
             for (DBConfig.User user : config.users) {
-                String password = secretClient.getOrCreateSecret(config.project, user.secret, config.env);
-                createDBUser(client, user, password);
-                if (user.kube != null) {
-                    if (namespaces.add(user.kube.ns)) {
-                        kubeClient.createNamespace(user.kube.ns);
+                // TODO: simplify this and potentially retire kube support?
+                if ("IAM".equals(user.type)) {
+                    client.grantUserPrivileges(user.name, user.db, List.of("SELECT", "INSERT", "UPDATE", "DELETE"));
+                } else {
+                    String password = secretClient.getOrCreateSecret(config.project, user.secret, config.env);
+                    createDBUser(client, user, password);
+                    if (user.kube != null) {
+                        if (namespaces.add(user.kube.ns)) {
+                            kubeClient.createNamespace(user.kube.ns);
+                        }
+                        kubeClient.createUserPasswordSecret(user.kube.ns, user.kube.secret, user.name, password);
                     }
-                    kubeClient.createUserPasswordSecret(user.kube.ns, user.kube.secret, user.name, password);
                 }
             }
             for (DBConfig.Endpoint endpoint : config.endpoints) {
@@ -68,7 +73,6 @@ public class SyncDBCommand {
         switch (user.type) {
             case "MIGRATION" -> client.createUser(user.name, password, "*", List.of("CREATE", "DROP", "INDEX", "ALTER", "EXECUTE", "SELECT", "INSERT", "UPDATE", "DELETE"));
             case "APP" -> client.createUser(user.name, password, user.db, List.of("SELECT", "INSERT", "UPDATE", "DELETE"));
-            case "IAM" -> client.grantUserPrivileges(user.name, user.db, List.of("SELECT", "INSERT", "UPDATE", "DELETE"));
             case "READ_ONLY" -> client.createUser(user.name, password, "*", List.of("SELECT"));
             default -> throw new Error("unknown user type, type=" + user.type);
         }
