@@ -49,6 +49,8 @@ public class SyncDBCommand {
                 // TODO: simplify this and potentially retire kube support?
                 if ("IAM".equals(user.type)) {
                     client.grantUserPrivileges(user.name, user.db, List.of("SELECT", "INSERT", "UPDATE", "DELETE"));
+                } else if ("IAM_MIGRATION".equals(user.type)) {
+                    client.grantUserPrivileges(user.name, "*", List.of("CREATE", "DROP", "INDEX", "ALTER", "EXECUTE", "SELECT", "INSERT", "UPDATE", "DELETE"));
                 } else {
                     createOtherUsers(client, user, namespaces);
                 }
