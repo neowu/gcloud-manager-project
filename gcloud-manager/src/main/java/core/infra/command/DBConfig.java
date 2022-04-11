@@ -36,6 +36,21 @@ public class DBConfig {
         public KubeSecret kube;
         public String type;
         public String db;
+        public String role;
+
+        public String db() {
+            if (db == null) return "*";
+            return db;
+        }
+
+        public List<String> privileges() {
+            return switch (role) {
+                case "APP" -> List.of("SELECT", "INSERT", "UPDATE", "DELETE");
+                case "MIGRATION" -> List.of("CREATE", "DROP", "INDEX", "ALTER", "EXECUTE", "SELECT", "INSERT", "UPDATE", "DELETE");
+                case "VIEWER" -> List.of("SELECT");
+                default -> throw new Error("unknown user role, role=" + role);
+            };
+        }
     }
 
     public static class Endpoint {

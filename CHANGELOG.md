@@ -1,6 +1,7 @@
 ### 0.0.3
 
 * add "IAM" type user, to grant permission only
+  > in the future, each user has type (IAM or not), role (privileges), and db (specific or '*')
 
 ### 0.0.2
 
