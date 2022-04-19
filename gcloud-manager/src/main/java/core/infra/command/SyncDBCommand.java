@@ -48,7 +48,7 @@ public class SyncDBCommand {
             for (DBConfig.User user : config.users) {
                 // TODO: simplify this and potentially retire kube support?
                 if ("IAM".equals(user.type)) {
-                    client.grantUserPrivileges(user.name, user.db(), user.privileges());
+                    client.grantUserPrivileges(user.name, config.dbs(user), user.privileges());
                 } else {
                     createOtherUsers(client, user, namespaces);
                 }

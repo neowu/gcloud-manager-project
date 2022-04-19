@@ -25,6 +25,11 @@ public class DBConfig {
         }
     }
 
+    public List<String> dbs(User user) {
+        if (user.db == null) return dbs;
+        return List.of(user.db);
+    }
+
     public static class Kube {
         public String name;
         public String zone;
@@ -37,11 +42,6 @@ public class DBConfig {
         public String type;
         public String db;
         public String role;
-
-        public String db() {
-            if (db == null) return "*";
-            return db;
-        }
 
         public List<String> privileges() {
             return switch (role) {
