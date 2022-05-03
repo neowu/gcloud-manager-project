@@ -27,7 +27,8 @@ public class MigrateDBSecretLabelCommand {
         logger.info("migrate db secret label");
         secretClient.updateEnvLabel(config.project, config.rootSecret, config.env);
         for (DBConfig.User user : config.users) {
-            secretClient.updateEnvLabel(config.project, user.secret, config.env);
+            if (!"IAM".equals(user.type))
+                secretClient.updateEnvLabel(config.project, user.secret, config.env);
         }
     }
 }
