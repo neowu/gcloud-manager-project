@@ -1,3 +1,5 @@
+### 0.0.4 (09/23/2022 - )
+
 ### 0.0.3
 
 * add "IAM" type user, to grant permission only
