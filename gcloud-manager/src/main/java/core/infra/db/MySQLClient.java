@@ -40,23 +40,22 @@ public class MySQLClient implements Closeable {
         }
     }
 
-    public void createUser(String user, String password, String db, List<String> privileges) throws SQLException {
+    public void createUser(String user, String password) throws SQLException {
         logger.info("create user, user={}", user);
         try (var statement = connection.createStatement()) {
             statement.addBatch(String.format("CREATE USER IF NOT EXISTS '%s'@'%%'", user));
             statement.addBatch(String.format("ALTER USER '%s'@'%%' IDENTIFIED BY '%s'", user, password));
-            statement.addBatch(String.format("GRANT %s ON %s.* TO '%s'@'%%'", String.join(", ", privileges), escape(db), user));
             statement.executeBatch();
         }
     }
 
     public void grantUserPrivileges(String user, List<String> dbs, List<String> privileges) throws SQLException {
-        logger.info("grant user privileges, user={}, dbs={}", user, dbs);
-        for (String db : dbs) {
-            String sql = String.format("GRANT %s ON %s.* TO '%s'@'%%'", String.join(", ", privileges), escape(db), user);
-            try (var statement = connection.prepareStatement(sql)) {
-                statement.execute();
+        logger.info("grant user privileges, user={}, dbs={}, privileges={}", user, dbs, privileges);
+        try (var statement = connection.createStatement()) {
+            for (String db : dbs) {
+                statement.addBatch(String.format("GRANT %s ON %s.* TO '%s'@'%%'", String.join(", ", privileges), escape(db), user));
             }
+            statement.executeBatch();
         }
     }
 

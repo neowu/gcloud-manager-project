@@ -26,8 +26,17 @@ public class DBConfig {
     }
 
     public List<String> dbs(User user) {
+        if (user.role == Role.REPLICATION) return List.of("*");   // for REPLICATION, scope is global, otherwise "ERROR 1221 (HY000): Incorrect usage of DB GRANT and GLOBAL PRIVILEGES"
         if (user.db == null) return dbs;
         return List.of(user.db);
+    }
+
+    public enum Auth {
+        IAM, PASSWORD
+    }
+
+    public enum Role {
+        APP, MIGRATION, VIEWER, REPLICATION
     }
 
     public static class Kube {
@@ -37,18 +46,17 @@ public class DBConfig {
 
     public static class User {
         public String name;
+        public Auth auth;
         public String secret;
-        public KubeSecret kube;
-        public String type;
         public String db;
-        public String role;
+        public Role role;
 
         public List<String> privileges() {
             return switch (role) {
-                case "APP" -> List.of("SELECT", "INSERT", "UPDATE", "DELETE");
-                case "MIGRATION" -> List.of("CREATE", "DROP", "INDEX", "ALTER", "EXECUTE", "SELECT", "INSERT", "UPDATE", "DELETE");
-                case "VIEWER" -> List.of("SELECT");
-                default -> throw new Error("unknown user role, role=" + role);
+                case APP -> List.of("SELECT", "INSERT", "UPDATE", "DELETE");
+                case MIGRATION -> List.of("CREATE", "DROP", "INDEX", "ALTER", "EXECUTE", "SELECT", "INSERT", "UPDATE", "DELETE");
+                case VIEWER -> List.of("SELECT");
+                case REPLICATION -> List.of("REPLICATION SLAVE", "SELECT", "RELOAD", "REPLICATION CLIENT", "LOCK TABLES", "EXECUTE");
             };
         }
     }
@@ -56,10 +64,5 @@ public class DBConfig {
     public static class Endpoint {
         public String name;
         public String ns;
-    }
-
-    public static class KubeSecret {
-        public String ns;
-        public String secret;
     }
 }

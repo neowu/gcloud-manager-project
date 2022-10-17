@@ -12,9 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.SQLException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -46,11 +44,16 @@ public class SyncDBCommand {
                 client.createDB(db);
             }
             for (DBConfig.User user : config.users) {
-                // TODO: simplify this and potentially retire kube support?
-                if ("IAM".equals(user.type)) {
-                    client.grantUserPrivileges(user.name, config.dbs(user), user.privileges());
-                } else {
-                    createOtherUsers(client, user, namespaces);
+                switch (user.auth) {
+                    case IAM -> {
+                        client.grantUserPrivileges(user.name, config.dbs(user), user.privileges());
+                    }
+                    case PASSWORD -> {
+                        String password = secretClient.getOrCreateSecret(config.project, user.secret, config.env);
+                        client.createUser(user.name, password);
+                        client.grantUserPrivileges(user.name, config.dbs(user), user.privileges());
+                    }
+                    default -> throw new Error("unknown auth, auth=" + user.auth);
                 }
             }
             for (DBConfig.Endpoint endpoint : config.endpoints) {
@@ -59,26 +62,6 @@ public class SyncDBCommand {
                 }
                 kubeClient.createEndpoint(endpoint.ns, endpoint.name, instance.privateIP());
             }
-        }
-    }
-
-    private void createOtherUsers(MySQLClient client, DBConfig.User user, Set<String> namespaces) throws SQLException {
-        String password = secretClient.getOrCreateSecret(config.project, user.secret, config.env);
-        createDBUser(client, user, password);
-        if (user.kube != null) {
-            if (namespaces.add(user.kube.ns)) {
-                kubeClient.createNamespace(user.kube.ns);
-            }
-            kubeClient.createUserPasswordSecret(user.kube.ns, user.kube.secret, user.name, password);
-        }
-    }
-
-    private void createDBUser(MySQLClient client, DBConfig.User user, String password) throws SQLException {
-        switch (user.type) {
-            case "MIGRATION" -> client.createUser(user.name, password, "*", List.of("CREATE", "DROP", "INDEX", "ALTER", "EXECUTE", "SELECT", "INSERT", "UPDATE", "DELETE"));
-            case "APP" -> client.createUser(user.name, password, user.db, List.of("SELECT", "INSERT", "UPDATE", "DELETE"));
-            case "READ_ONLY" -> client.createUser(user.name, password, "*", List.of("SELECT"));
-            default -> throw new Error("unknown user type, type=" + user.type);
         }
     }
 }

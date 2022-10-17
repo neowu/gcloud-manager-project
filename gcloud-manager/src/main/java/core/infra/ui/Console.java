@@ -1,13 +1,11 @@
 package core.infra.ui;
 
 import core.infra.command.ApplyKubeCommand;
-import core.infra.command.MigrateDBSecretLabelCommand;
 import core.infra.command.SyncDBCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,7 +37,6 @@ public class Console {
         switch (command) {
             case "db" -> syncDB();
             case "kube" -> applyKube();
-            case "db-migrate-secret-label" -> migrateDBSecretLabel();
             default -> throw new Error("unknown command, command=" + command);
         }
     }
@@ -52,13 +49,6 @@ public class Console {
         List<Path> configPaths = dbConfigPaths();
         for (Path config : configPaths) {
             new SyncDBCommand(config).sync();
-        }
-    }
-
-    private void migrateDBSecretLabel() throws IOException {
-        List<Path> configPaths = dbConfigPaths();
-        for (Path config : configPaths) {
-            new MigrateDBSecretLabelCommand(config).migrate();
         }
     }
 

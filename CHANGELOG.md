@@ -1,4 +1,12 @@
-### 0.0.4 (09/23/2022 - )
+### 0.0.4 (09/23/2022 - 10/17/2022)
+
+* finalize User design, with "auth" and "role"
+
+> e.g.
+> {"name": "viewer", "auth": "PASSWORD", "secret": "viewer-password", "role": "VIEWER"},
+> {"name": "build", "auth": "IAM", "role": "MIGRATION"},
+> {"name": "data-warehouse-service", "auth": "IAM", "role": "APP", "db": "data_warehouse"},
+> {"name": "data-stream", "auth": "PASSWORD", "secret": "data-stream-password", "role": "REPLICATION"}
 
 ### 0.0.3
 
