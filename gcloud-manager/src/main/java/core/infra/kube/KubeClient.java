@@ -1,7 +1,6 @@
 package core.infra.kube;
 
 import core.infra.util.ClasspathResources;
-import core.infra.util.Encodings;
 import core.infra.util.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +15,6 @@ public class KubeClient {
         logger.info("switch kube context, cluster={}", cluster);
         Shell.Result result = Shell.execute("gcloud", "--project=" + project, "container", "clusters", "get-credentials", cluster, "--zone=" + zone);
         if (!result.success()) throw new Error("failed to switch kube context, error=" + result.error);
-    }
-
-    public void createUserPasswordSecret(String ns, String secret, String user, String password) {
-        logger.info("create kube secret, ns={}, secret={}", ns, secret);
-        String resources = String.format(ClasspathResources.text("kube/secret-template.yaml"), ns, secret, Encodings.base64(user), Encodings.base64(password));
-        apply(resources);
     }
 
     public void createEndpoint(String ns, String name, String ip) {

@@ -3,7 +3,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.github.spotbugs.snom:spotbugs-gradle-plugin:5.0.7'
+        classpath 'com.github.spotbugs.snom:spotbugs-gradle-plugin:5.0.13'
     }
 }
 
@@ -17,8 +17,8 @@ subprojects {
 
     checkstyle {
         dependencies {
-            checkstyle 'com.puppycrawl.tools:checkstyle:10.3.2'
-            checkstyle 'com.github.sevntu-checkstyle:sevntu-checks:1.42.0'
+            checkstyle 'com.puppycrawl.tools:checkstyle:10.6.0'
+            checkstyle 'com.github.sevntu-checkstyle:sevntu-checks:1.44.0'
         }
 
         configFile = rootProject.file('gradle/check/checkstyle.xml')
@@ -45,7 +45,7 @@ subprojects {
     pmd {
         ruleSets = []
         ruleSetFiles = rootProject.files('gradle/check/pmd.xml')
-        toolVersion = '6.48.0'
+        toolVersion = '6.53.0'
         consoleOutput = true
 
         tasks.withType(Pmd).configureEach {
@@ -58,9 +58,10 @@ subprojects {
             spotbugsPlugins 'com.mebigfatguy.sb-contrib:sb-contrib:7.4.7'
         }
 
+        toolVersion = '4.7.3'
         reportLevel = 'low'
+        extraArgs = ['-longBugCodes']
         includeFilter = rootProject.file('gradle/check/spotbugs.xml')
-        toolVersion = '4.7.1'
 
         def spotbugsReport = tasks.register('spotbugsReport') {
             group = 'verification'
@@ -74,10 +75,9 @@ subprojects {
 
         tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach { task ->
             group = 'verification'
-            extraArgs = ['-longBugCodes']
-            reports {
+            reports.configure({
                 text.enabled = true
-            }
+            })
             task.finalizedBy(spotbugsReport)
         }
     }
