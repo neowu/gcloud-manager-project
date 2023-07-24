@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author neo
@@ -33,7 +32,7 @@ public class Console {
     }
 
     public void execute() throws Exception {
-        logger.info("gcloud manager 0.03");
+        logger.info("gcloud manager 0.05");
         switch (command) {
             case "db" -> syncDB();
             case "kube" -> applyKube();
@@ -66,6 +65,6 @@ public class Console {
             }
         }
         if (!dbDir.exists()) throw new Error("db dir doesn't exist, dir=" + dbDir.toPath().toAbsolutePath());
-        return Arrays.stream(dbDir.listFiles((dir, name) -> name.endsWith(".json"))).map(File::toPath).collect(Collectors.toList());
+        return Arrays.stream(dbDir.listFiles((dir, name) -> name.endsWith(".json"))).map(File::toPath).toList();
     }
 }
