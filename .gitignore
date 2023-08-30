@@ -7,3 +7,4 @@ buildSrc/build/
 /classes/
 **/src/dev/java/
 .DS_Store
+/env/
