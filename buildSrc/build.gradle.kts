@@ -9,12 +9,12 @@ repositories {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
 dependencies {
-    implementation("com.github.spotbugs.snom:spotbugs-gradle-plugin:5.1.3")
-    implementation("org.flywaydb:flyway-gradle-plugin:9.21.1")
-    implementation("org.flywaydb:flyway-mysql:9.21.1")
+    implementation("com.github.spotbugs.snom:spotbugs-gradle-plugin:5.2.5")
+    implementation("org.flywaydb:flyway-gradle-plugin:10.1.0")
+    implementation("org.flywaydb:flyway-mysql:10.1.0")
 }
